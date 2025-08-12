@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSPA 차일드 에이지 보호 계산기</title>
+<style>
+  :root{--bg:#f5f7fb;--card:#ffffff;--text:#111827;--muted:#6b7280;--border:#e5e7eb}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Helvetica,Arial,sans-serif;line-height:1.55}
+  .wrap{max-width:900px;margin:32px auto;padding:0 16px}
+  .card{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--card);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  h1{font-size:24px;margin:0 0 12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-weight:700}
+  input,select{border:1px solid #d1d5db;border-radius:10px;padding:10px;font-size:14px;width:100%;background:#fff}
+  .muted{color:var(--muted);font-size:12px}
+  .btn{display:inline-block;border:1px solid #111827;background:#111827;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .btn.reset{border-color:#d1d5db;background:#f9fafb;color:#111827;margin-left:8px}
+  .result{margin-top:18px;border-radius:12px;padding:14px;border:1px solid var(--border);background:#f9fafb}
+  .ok{color:#065f46;background:#ecfdf5;border-color:#a7f3d0}
+  .warn{color:#92400e;background:#fffbeb;border-color:#fde68a}
+  .bad{color:#991b1b;background:#fef2f2;border-color:#fecaca}
+  .kpi{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+  .kpi .pill{border:1px dashed #d1d5db;padding:8px 10px;border-radius:999px;font-size:12px;background:#fff}
+  .tips{font-size:12px;color:var(--muted);margin-top:8px}
+  footer{margin:16px 0;color:var(--muted);font-size:12px;text-align:center}
+  @media (max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>CSPA 차일드 에이지 보호 계산기</h1>
+      <div class="grid">
+        <div class="field">
+          <label>카테고리</label>
+          <select id="cat">
+            <option value="family">가족이민 파衍/직계 외(I-130, 파衍 포함)</option>
+            <option value="employment">취업이민 파衍(I-140)</option>
+            <option value="ir">직계가족(USC의 배우자/미혼자녀 등)</option>
+          </select>
+          <div class="muted">* 직계가족의 미성년은 통상 CSPA 계산이 필요 없습니다(접수 시 만 나이 고정).</div>
+        </div>
+        <div class="field">
+          <label>우선일자(Priority Date)</label>
+          <input type="date" id="pd">
+          <div class="muted">가족: I-130 접수일이 PD인 경우가 일반적 / 취업: 보통 PERM 접수일</div>
+        </div>
+        <div class="field">
+          <label>청원 접수일(Receipt Date)</label>
+          <input type="date" id="recv">
+          <div class="muted">I-130 또는 I-140 접수일</div>
+        </div>
+        <div class="field">
+          <label>청원 승인일(Approval Date)</label>
+          <input type="date" id="appr">
+        </div>
+        <div class="field">
+          <label>출생일(Date of Birth)</label>
+          <input type="date" id="dob">
+        </div>
+        <div class="field">
+          <label>비자 사용 가능일(Visa Availability)</label>
+          <input type="date" id="avail">
+          <div class="muted">Final Action Date가 PD에 도달한 날짜(레트로그레션 시 재도달일)</div>
+        </div>
+        <div class="field">
+          <label>“Sought to Acquire” 일자</label>
+          <input type="date" id="sta">
+          <div class="muted">I-485 접수, DS-260/수수료 납부 등 최초 행위 일자</div>
+        </div>
+        <div class="field">
+          <label>현재 날짜(선택)</label>
+          <input type="date" id="today">
+          <div class="muted">미입력 시 브라우저의 오늘 날짜 사용</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <button class="btn" onclick="calcCSPA()">계산하기</button>
+        <button class="btn reset" onclick="resetCSPA()">초기화</button>
+      </div>
+
+      <div id="out" class="result" style="display:none"></div>
+    </div>
+    <div class="tips">
+      <strong>주의:</strong> 본 계산기는 일반 정보 제공용 예시입니다. CSPA 해석에는 카테고리별/레트로그레션/예외적 토링(tolling) 이슈 등 복잡한 변수가 존재하므로, 최종 판단은 반드시 변호사 검토가 필요합니다.
+    </div>
+    <footer>© Law Office of Hong-min Jun — CSPA Calculator Demo</footer>
+  </div>
+
+<script>
+(function init() {
+  const t=document.getElementById('today');
+  const d=new Date(); t.value = d.toISOString().slice(0,10);
+})();
+
+function parseDate(id){
+  const v=document.getElementById(id).value;
+  return v? new Date(v+"T00:00:00") : null;
+}
+function daysBetween(a,b){ const ms= b - a; return Math.floor(ms/86400000); }
+function addDays(d, n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function yearsBetween(a,b){
+  let y=b.getFullYear()-a.getFullYear();
+  const m=b.getMonth()-a.getMonth();
+  const dd=b.getDate()-a.getDate();
+  if(m<0 || (m===0 && dd<0)) y--;
+  return y;
+}
+function fmt(d){ return d ? d.toISOString().slice(0,10) : ''; }
+function badge(text){ return '<span class="pill">'+text+'</span>'; }
+
+function calcCSPA(){
+  const cat = document.getElementById('cat').value;
+  const pd = parseDate('pd');
+  const recv = parseDate('recv');
+  const appr = parseDate('appr');
+  const dob = parseDate('dob');
+  const avail = parseDate('avail');
+  const sta = parseDate('sta');
+  const today = parseDate('today') || new Date();
+
+  const out = document.getElementById('out');
+  const errs = [];
+
+  if(!dob) errs.push('출생일을 입력해 주세요.');
+  if(!recv) errs.push('청원 접수일(I-130/I-140)을 입력해 주세요.');
+  if(!appr) errs.push('청원 승인일을 입력해 주세요.');
+  if(!avail) errs.push('비자 사용 가능일(Availability)을 입력해 주세요.');
+
+  if(appr && recv && appr < recv) errs.push('승인일은 접수일 이후여야 합니다.');
+  if(avail && dob && avail < dob) errs.push('비자 사용 가능일이 출생일보다 빠를 수 없습니다.');
+
+  if(errs.length){
+    out.style.display='block';
+    out.className='result bad';
+    out.innerHTML = '<strong>입력 오류</strong><ul style="margin:6px 0 0 18px">'+errs.map(e=>'<li>'+e+'</li>').join('')+'</ul>';
+    return;
+  }
+
+  const pendingDays = daysBetween(recv, appr);
+  const effectiveDOB = addDays(dob, pendingDays);
+  const cspaAge = yearsBetween(effectiveDOB, avail);
+
+  const deadline = addDays(avail, 365);
+  let soughtStatus = null;
+  if(sta){ soughtStatus = (sta <= deadline) ? 'within' : 'after'; }
+
+  let cls = 'result';
+  let head = '';
+  if(cat === 'ir'){
+    cls += ' warn';
+    head = '<strong>직계가족(IR) 참고</strong><br>직계가족 범주는 통상 I-130 접수 시점의 나이로 고정되며, 일반적인 CSPA 감산 계산을 적용하지 않습니다. 개별 검토가 필요할 수 있습니다.';
+  } else if(cspaAge < 21){
+    cls += ' ok';
+    head = '<strong>결과: CSPA 보호 가능성 高</strong><br>비자 사용 가능일 기준 CSPA 나이가 21세 미만입니다.';
+  } else {
+    cls += ' bad';
+    head = '<strong>결과: CSPA 보호 곤란</strong><br>비자 사용 가능일 기준 CSPA 나이가 21세 이상입니다.';
+  }
+
+  const kpis = [];
+  kpis.push(badge('심사 지연 기간: '+pendingDays+'일'));
+  kpis.push(badge('효과적 생일: '+fmt(effectiveDOB)));
+  kpis.push(badge('CSPA 나이(Availability 기준): '+cspaAge+'세'));
+  if(sta){
+    kpis.push(badge('Sought-to-acquire 마감: '+fmt(deadline)));
+    kpis.push(badge('귀하의 조치일: '+fmt(sta)));
+    kpis.push(badge(soughtStatus==='within' ? '1년 내 충족' : '1년 초과'));
+  } else {
+    kpis.push(badge('Sought-to-acquire 마감: '+fmt(deadline)));
+    kpis.push(badge('※ 1년 내 조치 필요'));
+  }
+
+  let notes = '<div class="tips">'
+    + '• 비자 사용 가능일은 통상 <strong>Final Action Date</strong>가 PD에 도달한 날짜입니다(레트로그레션 시 재도달일로 재산정).<br>'
+    + '• 취업이민의 PD는 대개 PERM 접수일, 가족이민은 대개 I-130 접수일입니다.<br>'
+    + '• 1년 내 sought-to-acquire에는 I-485 접수, DS-260 제출/수수료 납부, I-824 등 특정 행위가 포함될 수 있습니다(예외적 <em>tolling</em> 가능).<br>'
+    + '• 본 도구는 일반 정보 제공용이며, 최종 판단은 변호사 검토가 필요합니다.'
+    + '</div>';
+
+  out.style.display='block';
+  out.className = cls;
+  out.innerHTML = head + '<div class="kpi">' + kpis.join('') + '</div>' + notes;
+}
+
+function resetCSPA(){
+  ['pd','recv','appr','dob','avail','sta'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cat').value='family';
+  const t=document.getElementById('today'); t.value = new Date().toISOString().slice(0,10);
+  const out=document.getElementById('out'); out.style.display='none'; out.innerHTML='';
+}
+</script>
+</body>
+</html>
