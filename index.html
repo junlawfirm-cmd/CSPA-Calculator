@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NIW CSPA Calculator & Report (EN/KR/ZH)</title>
+  <style>
+    :root{
+      --border:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+
+      --brand:#1f2937;
+      --accent1:#4f46e5;
+      --accent2:#06b6d4;
+      --accent3:#f59e0b;
+      --danger:#ef4444;
+
+      --shadow: 0 10px 25px rgba(2,6,23,.08);
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,"Noto Sans KR",sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 500px at 10% 0%, rgba(79,70,229,.10), transparent 60%),
+                  radial-gradient(900px 450px at 90% 20%, rgba(6,182,212,.10), transparent 55%),
+                  var(--bg);
+    }
+    .wrap{ max-width:1100px; margin:22px auto; padding:0 16px 30px; }
+
+    .hero{
+      border:1px solid rgba(255,255,255,.6);
+      border-radius:18px;
+      padding:14px 16px;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(79,70,229,1) 0%, rgba(6,182,212,1) 55%, rgba(245,158,11,1) 120%);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-120px -120px auto auto;
+      width:280px; height:280px;
+      background: radial-gradient(circle at center, rgba(255,255,255,.25), transparent 60%);
+      transform: rotate(15deg);
+      pointer-events:none;
+    }
+    .heroTop{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .brandBlock{ min-width: 260px; }
+    .heroFirm{ font-weight:900; font-size:16px; letter-spacing:.2px; }
+    .heroAddr{ margin-top:6px; font-size:12px; line-height:1.35; opacity:.95; white-space:pre-wrap; }
+    .heroContact{ margin-top:6px; font-size:12px; opacity:.95; }
+    .heroTitle{ font-size:18px; font-weight:900; margin:0; }
+    .heroSub{ margin-top:6px; font-size:12.5px; line-height:1.45; opacity:.95; max-width: 560px; }
+    .langbar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .pill{
+      border:1px solid rgba(255,255,255,.45);
+      background: rgba(255,255,255,.18);
+      color:#fff;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      cursor:pointer;
+      font-weight:800;
+      backdrop-filter: blur(8px);
+    }
+    .pill.active{
+      background:#fff;
+      color: rgba(17,24,39,1);
+      border-color:#fff;
+    }
+
+    .grid{ display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px; }
+    @media (min-width:980px){ .grid{ grid-template-columns: 1.05fr 0.95fr; } }
+
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(226,232,240,.9);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 2px 10px rgba(2,6,23,.04);
+    }
+    .card h2{ font-size:14px; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:11px; font-weight:900;
+      padding:4px 8px; border-radius:999px;
+      background: rgba(79,70,229,.10);
+      color: rgba(79,70,229,1);
+      border:1px solid rgba(79,70,229,.18);
+    }
+
+    .row{ display:grid; grid-template-columns:1fr; gap:10px; }
+    @media (min-width:640px){ .row{ grid-template-columns:1fr 1fr; } }
+
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:700; }
+    input,select,textarea{
+      width:100%; box-sizing:border-box;
+      padding:10px 10px;
+      border:1px solid rgba(226,232,240,1);
+      border-radius:12px;
+      background:#fff;
+      font-size:14px;
+      outline:none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(79,70,229,.55);
+      box-shadow: 0 0 0 4px rgba(79,70,229,.12);
+    }
+    textarea{ min-height:84px; resize:vertical; }
+
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(226,232,240,1);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+      transition: transform .05s ease, box-shadow .15s ease;
+    }
+    button:hover{ box-shadow: 0 8px 18px rgba(2,6,23,.08); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: transparent;
+      color:#fff;
+      background: linear-gradient(135deg, rgba(79,70,229,1), rgba(6,182,212,1));
+    }
+    button.secondary{
+      border-color: rgba(79,70,229,.25);
+      background: rgba(79,70,229,.06);
+      color: rgba(79,70,229,1);
+    }
+    button.danger{
+      border-color: rgba(239,68,68,.28);
+      background: rgba(239,68,68,.06);
+      color: rgba(239,68,68,1);
+    }
+
+    .hint{ font-size:12px; color:var(--muted); line-height:1.5; }
+    .hr{ height:1px; background:rgba(226,232,240,1); margin:10px 0; }
+
+    .results{ display:grid; gap:10px; }
+    .kpi{
+      border:1px solid rgba(226,232,240,1);
+      border-radius:14px;
+      padding:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(248,250,252,1));
+    }
+    .kpi .k{ font-size:12px; color:var(--muted); font-weight:800; }
+    .kpi .v{ font-size:15px; font-weight:900; margin-top:4px; }
+    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
+
+    .badge{
+      display:inline-block; padding:5px 10px; border-radius:999px;
+      font-size:12px; font-weight:1000;
+      border:1px solid transparent;
+    }
+    .ok{ background: rgba(34,197,94,.12); color: rgba(22,101,52,1); border-color: rgba(34,197,94,.28); }
+    .warn{ background: rgba(245,158,11,.12); color: rgba(146,64,14,1); border-color: rgba(245,158,11,.30); }
+    .bad{ background: rgba(239,68,68,.12); color: rgba(153,27,27,1); border-color: rgba(239,68,68,.30); }
+
+    .small{ font-size:12px; color:var(--muted); }
+    a{ color:inherit; }
+
+    .reportbox{
+      border:1px solid rgba(226,232,240,1);
+      border-radius:16px;
+      padding:12px;
+      background:#fff;
+    }
+    .reportHeader{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+    }
+    .firm{ font-weight:1000; font-size:14px; }
+    .addr{ font-size:12px; color:var(--muted); line-height:1.35; white-space:pre-wrap; }
+    .sectionTitle{ font-weight:1000; margin:10px 0 6px; font-size:13px; }
+    .kv{ display:grid; grid-template-columns: 1fr; gap:8px; }
+    @media (min-width:720px){ .kv{ grid-template-columns: 1fr 1fr; } }
+    .kv .item{
+      border:1px solid rgba(226,232,240,1);
+      border-radius:12px;
+      padding:9px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,1));
+    }
+    .kv .item .kk{ font-size:12px; color:var(--muted); font-weight:800; }
+    .kv .item .vv{ font-size:13px; font-weight:900; margin-top:3px; white-space:pre-wrap; }
+
+    /* PRINT / PDF */
+    @media print{
+      body{ background:#fff; }
+      .wrap{ max-width:none; margin:0; padding:0; }
+      .noPrint{ display:none !important; }
+      .hero{ border-radius:0; box-shadow:none; }
+      .card{ box-shadow:none; border-radius:0; border:none; padding:0; background:#fff; }
+      .grid{ grid-template-columns: 1fr; }
+      .reportbox{ border:none; padding:0; }
+      a{ text-decoration:none; }
+      .kpi{ border:1px solid #ddd; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- START SECTION: firm + CITY/COUNTRY ONLY -->
+    <div class="hero">
+      <div class="heroTop">
+        <div class="brandBlock">
+          <div class="heroFirm" id="heroFirm">Law Office of Hong-min Jun</div>
+          <div class="heroAddr" id="heroAddr">Fishers, United States</div>
+          <div class="heroContact" id="heroContact">askus@junlawfirm.com | 847-660-4233 | 317-701-2768</div>
+        </div>
+
+        <div style="min-width:260px;">
+          <div class="heroTitle" data-i18n="title">NIW CSPA Calculator & Report</div>
+          <div class="heroSub" data-i18n="subtitle">
+            CSPA Age = (Child’s age on the “Visa Availability / Filing-Allowed Date”) − (I-140 pending time). Use the correct Visa Bulletin chart (A/B) per USCIS each month.
+          </div>
+          <div class="langbar" style="margin-top:10px;">
+            <button class="pill active" id="langEN" type="button">EN</button>
+            <button class="pill" id="langKR" type="button">KR</button>
+            <button class="pill" id="langZH" type="button">中文</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- INPUTS -->
+      <div class="card noPrint">
+        <h2><span class="chip">INPUT</span> <span data-i18n="inputTitle">Inputs</span></h2>
+
+        <div class="row">
+          <div>
+            <label data-i18n="firmNameLbl">Firm / Office Name (for report)</label>
+            <input id="firmName" type="text" value="Law Office of Hong-min Jun" />
+          </div>
+          <div>
+            <label data-i18n="contactLbl">Phone / Email (optional)</label>
+            <input id="contactLine" type="text" value="askus@junlawfirm.com | 847-660-4233 | 317-701-2768" />
+          </div>
+        </div>
+
+        <!-- NEW: City/Country only -->
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label data-i18n="cityLbl">City</label>
+            <input id="city" type="text" value="Fishers" />
+          </div>
+          <div>
+            <label data-i18n="countryLbl">Country</label>
+            <input id="country" type="text" value="United States" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label data-i18n="dobLbl">Child Date of Birth (DOB)</label>
+            <input id="dob" type="date" />
+          </div>
+          <div>
+            <label data-i18n="pdLbl">Priority Date (PD) (optional, for record)</label>
+            <input id="pd" type="date" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label data-i18n="i140FiledLbl">I-140 (NIW) Receipt / Filing Date</label>
+            <input id="i140Filed" type="date" />
+          </div>
+          <div>
+            <label data-i18n="i140ApprovedLbl">I-140 Approval Date</label>
+            <input id="i140Approved" type="date" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label data-i18n="chartLbl">Visa Bulletin Chart Used for Filing Eligibility (A/B)</label>
+            <select id="chartChoice">
+              <option value="A">A — Final Action Dates</option>
+              <option value="B">B — Dates for Filing</option>
+            </select>
+            <div class="small" data-i18n="chartNote">
+              USCIS announces monthly whether employment-based applicants may use Chart A or Chart B to file I-485.
+              Check USCIS “Adjustment of Status Filing Charts” before setting the baseline date.
+            </div>
+          </div>
+          <div>
+            <label data-i18n="filingAllowedLbl">“Current / Filing-Allowed” Date (Lock baseline)</label>
+            <input id="currentDate" type="date" />
+            <div class="small" data-i18n="lockNote">
+              This is the date you treat as the “visa available / filing allowed” baseline for CSPA locking analysis.
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label data-i18n="staTypeLbl">Seek to Acquire Action Type (optional)</label>
+            <select id="staType">
+              <option value="">—</option>
+              <option value="I-485">I-485 filed</option>
+              <option value="DS-260">DS-260 filed</option>
+              <option value="I-824">I-824 filed</option>
+              <option value="NVC">NVC fee/docs action</option>
+              <option value="OTHER">Other (note)</option>
+            </select>
+          </div>
+          <div>
+            <label data-i18n="staDateLbl">Seek to Acquire Action Date</label>
+            <input id="staDate" type="date" />
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <label data-i18n="notesLbl">Notes (optional)</label>
+          <textarea id="notes" placeholder=""></textarea>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="calcBtn" type="button" data-i18n="calcBtn">Calculate</button>
+          <button class="secondary" id="reportBtn" type="button" data-i18n="reportBtn">Generate Report/PDF</button>
+          <button id="exampleBtn" type="button" data-i18n="exampleBtn">Fill Example</button>
+          <button class="danger" id="resetBtn" type="button" data-i18n="resetBtn">Reset</button>
+        </div>
+
+        <div class="hr"></div>
+        <div class="hint" data-i18n="legalHint">
+          This tool provides arithmetic assistance only and is not legal advice. Chart selection (A/B) and “seek to acquire” rules can be fact-specific.
+        </div>
+      </div>
+
+      <!-- RESULTS + REPORT -->
+      <div class="card">
+        <h2 class="noPrint"><span class="chip" style="background:rgba(6,182,212,.12); color:rgba(6,182,212,1); border-color:rgba(6,182,212,.22);">OUTPUT</span> <span data-i18n="outputTitle">Results & Report</span></h2>
+
+        <div class="results noPrint" id="results">
+          <div class="kpi">
+            <div class="k" data-i18n="statusLbl">Status</div>
+            <div class="v" id="statusOut"><span class="badge warn" data-i18n="statusReady">Ready</span></div>
+          </div>
+          <div class="kpi">
+            <div class="k" data-i18n="pendingLbl">I-140 Pending Time</div>
+            <div class="v mono" id="pendingOut">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k" data-i18n="realAgeLbl">Child Age on Baseline Date</div>
+            <div class="v mono" id="realAgeOut">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k" data-i18n="cspaLbl">CSPA Age (Calculated)</div>
+            <div class="v mono" id="cspaOut">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k" data-i18n="staLbl">Seek to Acquire (1-year rule)</div>
+            <div class="v mono" id="staOut">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k" data-i18n="logLbl">Calculation Log</div>
+            <div class="v mono" style="font-size:12px; font-weight:900; white-space:pre-wrap;" id="logOut">—</div>
+          </div>
+        </div>
+
+        <div class="reportbox" id="reportBox" style="display:none;">
+          <div class="reportHeader">
+            <div>
+              <div class="firm" id="rFirm">—</div>
+              <div class="addr" id="rAddr">—</div>
+              <div class="addr" id="rContact">—</div>
+            </div>
+            <div class="small">
+              <div><b data-i18n="reportTitle">CSPA Calculation Report (NIW / EB-2)</b></div>
+              <div><span data-i18n="reportDateLbl">Report Date:</span> <span id="rDate" class="mono">—</span></div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="sectionTitle" data-i18n="summaryTitle">Summary</div>
+          <div id="rStatusLine"></div>
+
+          <div class="sectionTitle" data-i18n="inputsTitle">Inputs</div>
+          <div class="kv" id="rInputs"></div>
+
+          <div class="sectionTitle" data-i18n="outputsTitle">Outputs</div>
+          <div class="kv" id="rOutputs"></div>
+
+          <div class="sectionTitle" data-i18n="disclaimerTitle">Disclaimer</div>
+          <div class="small" id="rDisclaimer" style="white-space:pre-wrap; line-height:1.5;"></div>
+
+          <div class="sectionTitle" data-i18n="notesTitle">Notes</div>
+          <div class="small" id="rNotes" style="white-space:pre-wrap; line-height:1.5;"></div>
+
+          <div class="hr"></div>
+          <div class="small" id="rFooter" style="line-height:1.5;"></div>
+        </div>
+
+        <div class="small noPrint" style="margin-top:10px;" data-i18n="pdfNote">
+          Tip: Click “Generate Report/PDF” then use your browser Print → Save as PDF.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const I18N = {
+  EN: {
+    title:"NIW CSPA Calculator & Report",
+    subtitle:"CSPA Age = (Child’s age on the “Visa Availability / Filing-Allowed Date”) − (I-140 pending time). Use the correct Visa Bulletin chart (A/B) per USCIS each month.",
+    inputTitle:"Inputs", outputTitle:"Results & Report",
+    firmNameLbl:"Firm / Office Name (for report)",
+    contactLbl:"Phone / Email (optional)",
+    cityLbl:"City", countryLbl:"Country",
+    dobLbl:"Child Date of Birth (DOB)",
+    pdLbl:"Priority Date (PD) (optional, for record)",
+    i140FiledLbl:"I-140 (NIW) Receipt / Filing Date",
+    i140ApprovedLbl:"I-140 Approval Date",
+    chartLbl:"Visa Bulletin Chart Used for Filing Eligibility (A/B)",
+    chartNote:"USCIS announces monthly whether employment-based applicants may use Chart A or Chart B to file I-485. Check USCIS “Adjustment of Status Filing Charts” before setting the baseline date.",
+    filingAllowedLbl:"“Current / Filing-Allowed” Date (Lock baseline)",
+    lockNote:"This is the date you treat as the “visa available / filing allowed” baseline for CSPA locking analysis.",
+    staTypeLbl:"Seek to Acquire Action Type (optional)",
+    staDateLbl:"Seek to Acquire Action Date",
+    notesLbl:"Notes (optional)",
+    calcBtn:"Calculate", reportBtn:"Generate Report/PDF", exampleBtn:"Fill Example", resetBtn:"Reset",
+    legalHint:"This tool provides arithmetic assistance only and is not legal advice. Chart selection (A/B) and “seek to acquire” rules can be fact-specific.",
+    statusLbl:"Status", statusReady:"Ready",
+    pendingLbl:"I-140 Pending Time", realAgeLbl:"Child Age on Baseline Date", cspaLbl:"CSPA Age (Calculated)", staLbl:"Seek to Acquire (1-year rule)", logLbl:"Calculation Log",
+    reportTitle:"CSPA Calculation Report (NIW / EB-2)", reportDateLbl:"Report Date:",
+    summaryTitle:"Summary", inputsTitle:"Inputs", outputsTitle:"Outputs", disclaimerTitle:"Disclaimer", notesTitle:"Notes",
+    pdfNote:"Tip: Click “Generate Report/PDF” then use your browser Print → Save as PDF."
+  },
+  KR: {
+    title:"NIW CSPA 계산기 & 보고서",
+    subtitle:"CSPA 나이 = (비자 사용 가능/접수 가능 기준일의 실제 나이) − (I-140 펜딩 기간). 매월 USCIS 공지에 따라 차트 A/B를 올바르게 선택하세요.",
+    inputTitle:"입력", outputTitle:"결과 & 보고서",
+    firmNameLbl:"사무실/로펌명 (보고서용)",
+    contactLbl:"전화/이메일 (선택)",
+    cityLbl:"도시", countryLbl:"국가",
+    dobLbl:"자녀 생년월일(DOB)",
+    pdLbl:"우선일자(PD) (선택: 기록용)",
+    i140FiledLbl:"I-140(NIW) 접수일(Receipt)",
+    i140ApprovedLbl:"I-140 승인일(Approval)",
+    chartLbl:"I-485 접수 가능 차트(A/B) 선택",
+    chartNote:"취업이민은 매월 USCIS가 차트 A 또는 B 중 어느 것을 기준으로 I-485 접수를 허용하는지 공지합니다. 기준일 입력 전 공지를 확인하세요.",
+    filingAllowedLbl:"‘Current/접수 가능’ 기준일(락 기준)",
+    lockNote:"CSPA 락(분석)의 기준이 되는 날짜로, ‘비자 사용 가능/접수 허용’ 기준일로 취급합니다.",
+    staTypeLbl:"Seek to Acquire 조치 유형(선택)",
+    staDateLbl:"Seek to Acquire 조치 날짜",
+    notesLbl:"메모(선택)",
+    calcBtn:"계산하기", reportBtn:"보고서/PDF 출력", exampleBtn:"예시 입력", resetBtn:"초기화",
+    legalHint:"본 도구는 산술 계산 보조용이며 법률자문이 아닙니다. 차트(A/B) 선택 및 seek-to-acquire 판단은 사실관계에 따라 달라질 수 있습니다.",
+    statusLbl:"상태", statusReady:"대기",
+    pendingLbl:"I-140 펜딩 기간", realAgeLbl:"기준일(락 기준) 실제 나이", cspaLbl:"CSPA 나이(계산)", staLbl:"Seek to Acquire(1년 룰)", logLbl:"계산 로그",
+    reportTitle:"CSPA 계산 보고서 (NIW / EB-2)", reportDateLbl:"보고서 작성일:",
+    summaryTitle:"요약", inputsTitle:"입력값", outputsTitle:"출력값", disclaimerTitle:"면책조항", notesTitle:"메모",
+    pdfNote:"팁: ‘보고서/PDF 출력’ → 브라우저 인쇄에서 PDF 저장을 사용하세요."
+  },
+  ZH: {
+    title:"NIW CSPA 计算器与报告",
+    subtitle:"CSPA 年龄 =（在“签证可用/允许递交日期”的实际年龄）−（I-140 审理时间）。每月请根据 USCIS 公告选择正确的 A/B 表。",
+    inputTitle:"输入", outputTitle:"结果与报告",
+    firmNameLbl:"律所/办公室名称（用于报告）",
+    contactLbl:"电话/邮箱（可选）",
+    cityLbl:"城市", countryLbl:"国家",
+    dobLbl:"子女出生日期（DOB）",
+    pdLbl:"优先日（PD）（可选：记录用）",
+    i140FiledLbl:"I-140（NIW）递交日期",
+    i140ApprovedLbl:"I-140 批准日期",
+    chartLbl:"I-485 递交资格使用的签证公告表（A/B）",
+    chartNote:"USCIS 每月公布就业类可用 A 表或 B 表来递交 I-485。设置基准日期前请先核对当月公告。",
+    filingAllowedLbl:"“Current/允许递交”基准日期（锁定基准）",
+    lockNote:"该日期作为 CSPA 锁定分析的基准（视为签证可用/允许递交的日期）。",
+    staTypeLbl:"Seek to Acquire 行为类型（可选）",
+    staDateLbl:"Seek to Acquire 行为日期",
+    notesLbl:"备注（可选）",
+    calcBtn:"计算", reportBtn:"生成报告/PDF", exampleBtn:"填入示例", resetBtn:"重置",
+    legalHint:"本工具仅用于算术辅助，不构成法律意见。A/B 表选择及 seek-to-acquire 认定可能因具体事实而异。",
+    statusLbl:"状态", statusReady:"就绪",
+    pendingLbl:"I-140 审理时间", realAgeLbl:"基准日期的实际年龄", cspaLbl:"CSPA 年龄（计算）", staLbl:"Seek to Acquire（1 年规则）", logLbl:"计算日志",
+    reportTitle:"CSPA 计算报告（NIW / EB-2）", reportDateLbl:"报告日期：",
+    summaryTitle:"摘要", inputsTitle:"输入", outputsTitle:"输出", disclaimerTitle:"免责声明", notesTitle:"备注",
+    pdfNote:"提示：点击“生成报告/PDF”后，用浏览器 打印 → 另存为 PDF。"
+  }
+};
+
+let LANG="EN";
+let LAST_RESULT=null;
+
+function setLang(lang){
+  LANG=lang;
+  document.getElementById("langEN").classList.toggle("active", lang==="EN");
+  document.getElementById("langKR").classList.toggle("active", lang==="KR");
+  document.getElementById("langZH").classList.toggle("active", lang==="ZH");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key=el.getAttribute("data-i18n");
+    if(I18N[lang][key]) el.textContent=I18N[lang][key];
+  });
+  if(LAST_RESULT) renderStatusBadge(LAST_RESULT.status);
+}
+
+document.getElementById("langEN").addEventListener("click",()=>setLang("EN"));
+document.getElementById("langKR").addEventListener("click",()=>setLang("KR"));
+document.getElementById("langZH").addEventListener("click",()=>setLang("ZH"));
+
+function safeLocation(){
+  const city=(document.getElementById("city").value||"").trim();
+  const country=(document.getElementById("country").value||"").trim();
+  const loc = [city,country].filter(Boolean).join(", ");
+  return loc || "—";
+}
+
+function syncHero(){
+  const firmName=document.getElementById("firmName").value || "—";
+  const contact=document.getElementById("contactLine").value || "—";
+  document.getElementById("heroFirm").textContent=firmName;
+  document.getElementById("heroAddr").textContent=safeLocation(); // City, Country only
+  document.getElementById("heroContact").textContent=contact;
+}
+["firmName","contactLine","city","country"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", syncHero);
+});
+
+/* Date helpers */
+function parseDateInput(value){
+  if(!value) return null;
+  const [y,m,d]=value.split("-").map(Number);
+  if(!y||!m||!d) return null;
+  return new Date(y,m-1,d,12,0,0,0);
+}
+function formatDate(d){
+  if(!d) return "—";
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function diffDays(start,end){
+  const ms=24*60*60*1000;
+  return Math.floor((end.getTime()-start.getTime())/ms);
+}
+function addDays(date,days){
+  const d=new Date(date.getTime());
+  d.setDate(d.getDate()+days);
+  return d;
+}
+function ymdFromDays(days){
+  const years=Math.floor(days/365);
+  const rem1=days%365;
+  const months=Math.floor(rem1/30);
+  const rem2=rem1%30;
+  return {years,months,days:rem2};
+}
+function ageInDays(dob,asOf){ return diffDays(dob,asOf); }
+function ageYMD(dob,asOf){
+  let y=asOf.getFullYear()-dob.getFullYear();
+  let m=asOf.getMonth()-dob.getMonth();
+  let d=asOf.getDate()-dob.getDate();
+  if(d<0){
+    const prevMonth=new Date(asOf.getFullYear(), asOf.getMonth(), 0);
+    d+=prevMonth.getDate(); m-=1;
+  }
+  if(m<0){ m+=12; y-=1; }
+  return {years:y, months:m, days:d};
+}
+
+function badgeHTML(kind){
+  if(kind==="ok") return `<span class="badge ok">${LANG==="KR"?"CSPA 보호 유지 가능":(LANG==="ZH"?"可能维持 CSPA 保护":"CSPA likely preserved")}</span>`;
+  if(kind==="bad") return `<span class="badge bad">${LANG==="KR"?"CSPA 보호 상실 위험":(LANG==="ZH"?"可能失去 CSPA 保护":"Risk of CSPA loss")}</span>`;
+  return `<span class="badge warn">${LANG==="KR"?"추가 조치/검토 필요":(LANG==="ZH"?"需要进一步核对/行动":"Further review/action needed")}</span>`;
+}
+function renderStatusBadge(status){
+  document.getElementById("statusOut").innerHTML=badgeHTML(status);
+}
+function setOutputs({status,pendingText,realAgeText,cspaText,staText,logText}){
+  renderStatusBadge(status);
+  document.getElementById("pendingOut").textContent=pendingText||"—";
+  document.getElementById("realAgeOut").textContent=realAgeText||"—";
+  document.getElementById("cspaOut").textContent=cspaText||"—";
+  document.getElementById("staOut").textContent=staText||"—";
+  document.getElementById("logOut").textContent=logText||"—";
+}
+function validateInputs(dob,filed,approved,baseline){
+  const errs=[];
+  if(!dob) errs.push(LANG==="KR"?"DOB(생년월일)을 입력해 주세요.":(LANG==="ZH"?"请输入出生日期(DOB)。":"Enter DOB."));
+  if(!filed) errs.push(LANG==="KR"?"I-140 접수일을 입력해 주세요.":(LANG==="ZH"?"请输入 I-140 递交日期。":"Enter I-140 filing date."));
+  if(!approved) errs.push(LANG==="KR"?"I-140 승인일을 입력해 주세요.":(LANG==="ZH"?"请输入 I-140 批准日期。":"Enter I-140 approval date."));
+  if(!baseline) errs.push(LANG==="KR"?"기준일(락 기준)을 입력해 주세요.":(LANG==="ZH"?"请输入基准日期。":"Enter baseline date."));
+  if(filed && approved && approved < filed) errs.push(LANG==="KR"?"승인일이 접수일보다 빠릅니다.":(LANG==="ZH"?"批准日期早于递交日期。":"Approval date is earlier than filing date."));
+  if(dob && baseline && baseline < dob) errs.push(LANG==="KR"?"기준일이 생년월일보다 빠릅니다.":(LANG==="ZH"?"基准日期早于出生日期。":"Baseline date is earlier than DOB."));
+  return errs;
+}
+
+function compute(){
+  const dob=parseDateInput(document.getElementById("dob").value);
+  const filed=parseDateInput(document.getElementById("i140Filed").value);
+  const approved=parseDateInput(document.getElementById("i140Approved").value);
+  const baseline=parseDateInput(document.getElementById("currentDate").value);
+
+  const staType=document.getElementById("staType").value;
+  const staDate=parseDateInput(document.getElementById("staDate").value);
+
+  const errs=validateInputs(dob,filed,approved,baseline);
+  if(errs.length){
+    LAST_RESULT=null;
+    setOutputs({status:"warn", pendingText:"—", realAgeText:"—", cspaText:"—", staText:"—",
+      logText:(LANG==="KR"?"입력 오류:\n- ":"Input errors:\n- ")+errs.join("\n- ")
+    });
+    return null;
+  }
+
+  const pendingDays=diffDays(filed,approved);
+  const p=ymdFromDays(pendingDays);
+  const pendingText=`${pendingDays} days (≈ ${p.years}y ${p.months}m ${p.days}d)`;
+
+  const realAgeDays=ageInDays(dob,baseline);
+  const real=ageYMD(dob,baseline);
+  const realAgeText=`${real.years}y ${real.months}m ${real.days}d (total ${realAgeDays} days)`;
+
+  const cspaDays=realAgeDays - pendingDays;
+  const cspaAnchorDate=addDays(baseline,-pendingDays);
+  const twentyOneBirthday=new Date(dob.getFullYear()+21, dob.getMonth(), dob.getDate(), 12,0,0,0);
+  const under21 = cspaAnchorDate < twentyOneBirthday;
+
+  const c=ymdFromDays(Math.max(0,cspaDays));
+  const cspaText=`${Math.max(0,cspaDays)} days (display ≈ ${c.years}y ${c.months}m ${c.days}d) · ${under21 ? "UNDER 21" : "21+”"}`;
+
+  let staText="—";
+  let staOk=null;
+  if(staType && staDate){
+    const deadline=new Date(baseline.getFullYear()+1, baseline.getMonth(), baseline.getDate(), 12,0,0,0);
+    staOk=(staDate<=deadline);
+    staText=`${staType} @ ${formatDate(staDate)} | deadline: ${formatDate(deadline)} | ${staOk ? "OK" : "LATE"}`;
+  }else if(!staType && !staDate){
+    staText=(LANG==="KR"?"입력 없음(1년 룰 별도 확인 필요)":(LANG==="ZH"?"未输入（需另行核对一年规则）":"Not provided (verify 1-year rule separately)"));
+  }else{
+    staText=(LANG==="KR"?"유형/날짜가 불완전합니다":(LANG==="ZH"?"类型/日期不完整":"Type/date incomplete"));
+  }
+
+  let status="warn";
+  if(!under21) status="bad";
+  else if(under21 && staOk===true) status="ok";
+  else status="warn";
+
+  const chart=document.getElementById("chartChoice").value;
+  const pd=parseDateInput(document.getElementById("pd").value);
+
+  const logLines=[];
+  logLines.push(`Chart chosen: ${chart}`);
+  if(pd) logLines.push(`Priority Date (record): ${formatDate(pd)}`);
+  logLines.push(`Baseline date: ${formatDate(baseline)}`);
+  logLines.push(`DOB: ${formatDate(dob)}`);
+  logLines.push(`I-140 filed: ${formatDate(filed)}`);
+  logLines.push(`I-140 approved: ${formatDate(approved)}`);
+  logLines.push(`I-140 pending days: ${pendingDays}`);
+  logLines.push(`Real age days @baseline: ${realAgeDays}`);
+  logLines.push(`CSPA anchor date = baseline - pending = ${formatDate(cspaAnchorDate)}`);
+  logLines.push(`21st birthday: ${formatDate(twentyOneBirthday)}`);
+  logLines.push(`Under 21 by CSPA? ${under21 ? "YES" : "NO"}`);
+  if(staType || staDate) logLines.push(`Seek to acquire: ${staType || "(none)"} / ${formatDate(staDate)}`);
+
+  setOutputs({status,pendingText,realAgeText,cspaText,staText,logText:logLines.join("\n")});
+
+  LAST_RESULT={status,pendingText,realAgeText,cspaText,staText,logText:logLines.join("\n"),
+    chart, pd: pd?formatDate(pd):"", baseline:formatDate(baseline),
+    dob:formatDate(dob), filed:formatDate(filed), approved:formatDate(approved)
+  };
+  return LAST_RESULT;
+}
+
+function disclaimerText(){
+  if(LANG==="KR"){
+    return [
+      "면책조항",
+      "1) 본 문서는 산술 계산 및 상담 보조를 위한 참고자료이며, 법률자문이 아닙니다.",
+      "2) CSPA 적용 여부는 사건의 사실관계(신분, 접수 가능 차트, 레트로그레션, seek-to-acquire 인정 범위 등)에 따라 달라질 수 있습니다.",
+      "3) 최종 판단은 USCIS/DOS 공지 및 개별 서류/절차 확인을 전제로 합니다."
+    ].join("\n");
+  }
+  if(LANG==="ZH"){
+    return [
+      "免责声明",
+      "1) 本报告仅用于算术计算与咨询辅助，不构成法律意见。",
+      "2) CSPA 适用与否可能因个案事实（身份、当月允许使用的 A/B 表、倒退、seek-to-acquire 认定范围等）而变化。",
+      "3) 最终结论应以 USCIS/DOS 公告及个案材料核对为准。"
+    ].join("\n");
+  }
+  return [
+    "Disclaimer",
+    "1) This report is for arithmetic/reference purposes only and is not legal advice.",
+    "2) CSPA outcomes may vary based on case-specific facts (status, monthly USCIS chart selection, retrogression, and what qualifies as “seek to acquire”).",
+    "3) Final determination should be made after confirming USCIS/DOS guidance and the complete record."
+  ].join("\n");
+}
+function reportFooter(){
+  if(LANG==="KR") return "참고: 취업이민(EB) I-485 접수 가능 차트(A/B)는 USCIS가 매월 공지합니다. 기준일 설정 전 해당 월 공지를 확인하십시오.";
+  if(LANG==="ZH") return "提示：就业类 I-485 递交可用的 A/B 表由 USCIS 每月公布。设置基准日期前请先核对当月公告。";
+  return "Note: For employment-based I-485 filings, USCIS announces monthly whether Chart A or Chart B may be used. Confirm the monthly notice before setting the baseline date.";
+}
+function makeKV(container, items){
+  container.innerHTML="";
+  items.forEach(({k,v})=>{
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`<div class="kk">${k}</div><div class="vv">${v || "—"}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function generateReport(){
+  const res=compute(); if(!res) return;
+
+  const firmName=document.getElementById("firmName").value || "—";
+  const contact=document.getElementById("contactLine").value || "—";
+  const loc=safeLocation();
+
+  document.getElementById("rFirm").textContent=firmName;
+  document.getElementById("rAddr").textContent=loc;          // City, Country only
+  document.getElementById("rContact").textContent=contact;
+  document.getElementById("rDate").textContent=new Date().toISOString().slice(0,10);
+
+  const statusLine=document.getElementById("rStatusLine");
+  statusLine.innerHTML=badgeHTML(res.status)+" "+(LANG==="KR"
+    ? `(차트 ${res.chart} 기준 / 기준일: ${res.baseline})`
+    : (LANG==="ZH"
+      ? `（使用表 ${res.chart} / 基准日：${res.baseline}）`
+      : `(Chart ${res.chart} / Baseline: ${res.baseline})`));
+
+  makeKV(document.getElementById("rInputs"), [
+    {k: LANG==="KR"?"자녀 생년월일(DOB)":(LANG==="ZH"?"出生日期(DOB)":"DOB"), v: res.dob},
+    {k: LANG==="KR"?"우선일자(PD, 기록용)":(LANG==="ZH"?"优先日(PD, 记录)":"Priority Date (record)"), v: res.pd || "—"},
+    {k: LANG==="KR"?"I-140 접수일":(LANG==="ZH"?"I-140 递交日":"I-140 filed"), v: res.filed},
+    {k: LANG==="KR"?"I-140 승인일":(LANG==="ZH"?"I-140 批准日":"I-140 approved"), v: res.approved},
+    {k: LANG==="KR"?"차트 선택":(LANG==="ZH"?"签证公告表":"Chart"), v: res.chart},
+    {k: LANG==="KR"?"기준일(락 기준)":(LANG==="ZH"?"基准日":"Baseline date"), v: res.baseline},
+  ]);
+
+  makeKV(document.getElementById("rOutputs"), [
+    {k: LANG==="KR"?"I-140 펜딩 기간":(LANG==="ZH"?"I-140 审理时间":"I-140 pending"), v: res.pendingText},
+    {k: LANG==="KR"?"기준일 실제 나이":(LANG==="ZH"?"基准日实际年龄":"Age on baseline"), v: res.realAgeText},
+    {k: LANG==="KR"?"CSPA 나이":(LANG==="ZH"?"CSPA 年龄":"CSPA age"), v: res.cspaText},
+    {k: LANG==="KR"?"Seek to Acquire":(LANG==="ZH"?"Seek to Acquire":"Seek to acquire"), v: res.staText},
+    {k: LANG==="KR"?"계산 로그":(LANG==="ZH"?"计算日志":"Log"), v: res.logText},
+  ]);
+
+  document.getElementById("rDisclaimer").textContent=disclaimerText();
+  document.getElementById("rNotes").textContent=document.getElementById("notes").value || (LANG==="KR"?"(없음)":(LANG==="ZH"?"（无）":"(none)"));
+  document.getElementById("rFooter").textContent=reportFooter();
+
+  document.getElementById("reportBox").style.display="block";
+  window.print();
+}
+
+/* Buttons */
+document.getElementById("calcBtn").addEventListener("click", compute);
+document.getElementById("reportBtn").addEventListener("click", generateReport);
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  ["dob","pd","i140Filed","i140Approved","currentDate","staDate","notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("chartChoice").value="A";
+  document.getElementById("staType").value="";
+  LAST_RESULT=null;
+  document.getElementById("reportBox").style.display="none";
+  setOutputs({status:"warn", pendingText:"—", realAgeText:"—", cspaText:"—", staText:"—", logText:"—"});
+});
+document.getElementById("exampleBtn").addEventListener("click", ()=>{
+  document.getElementById("dob").value="2004-06-01";
+  document.getElementById("pd").value="2022-06-01";
+  document.getElementById("i140Filed").value="2022-06-01";
+  document.getElementById("i140Approved").value="2023-06-01";
+  document.getElementById("chartChoice").value="A";
+  document.getElementById("currentDate").value="2025-06-01";
+  document.getElementById("staType").value="I-485";
+  document.getElementById("staDate").value="2025-06-15";
+  compute();
+});
+
+setLang("EN");
+syncHero();
+setOutputs({status:"warn", pendingText:"—", realAgeText:"—", cspaText:"—", staText:"—", logText:"—"});
+</script>
+</body>
+</html>
